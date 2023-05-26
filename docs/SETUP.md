@@ -10,14 +10,14 @@ This is an in-depth guide on using this repo. This goes over getting the base re
 
 - [ ] Create a new app (Public or Custom) from your [Shopify Partner Dashboard](https://partners.shopify.com).
 
-  - The App URL will be generated later in the setup. Add `https://localhost` for now.
+  - The App URL will can generate it later in the setup. Add `https://localhost` for now.
 
 - [ ] Build your `.env` file based on `.env.example`.
 
   - `SHOPIFY_API_KEY`: App API key.
   - `SHOPIFY_API_SECRET`: App secret.
   - `SHOPIFY_API_SCOPES`: Scopes required by your Shopify app. A list of access scopes can be found [here](https://shopify.dev/api/usage/access-scopes)
-  - `SHOPIFY_APP_URL`: URL generated from Ngrok.
+  - `SHOPIFY_APP_URL`: App url example `https://localhost` or `https://app-name.test`
   - `SHOPIFY_API_VERSION`: Pre-filled to the latest version. All the calls in the repo are based off this API version so if you're downgrading please refer to the official docs instead. The repo is always kept up to date with the newest practices so you can rely on the basic repo to almost always work without depriciation errors popping up.
   - `DATABASE_URL`: Database connection URL. Since we're using Prisma ORM with this repo, it supports SQL and noSQL databases. Read more about it [here](https://www.prisma.io/stack)
   - `ENCRYPTION_STRING`: String to use for Cryption for encrypting sessions token. Add a random salt (or a random string of letters and numbers) and save it. If you loose the string you cannot decrypt your sessions and must be kept safely.
@@ -30,8 +30,8 @@ This is an in-depth guide on using this repo. This goes over getting the base re
   - `pretty`: Run `prettier` on the entire project.
   - `update`: Force updates all packages to latest version and requires you to manually run `npm i --force` after. Not recommended if you don't know what you're doing.
   - `update:url`: Use `@shopify/cli-kit` to update URLs to your Shopify partner dashboard. Requires a proper setup of `.env` file.
-  - `ngrok:auth`: Replace `<auth-token-goes-here>` with your ngrok token and run it to activate ngrok.
-  - `ngrok`: Starts ngrok on port 3000.
+  - `ssl:create`: Generate a self-signed SSL and generate `proxy-config.json` file, so that `npm run tunnel` will work properly.
+  - `tunnel`: Run the local proxy.
   - `shopify`: Allows you to accesss Shopify CLI commands. Try `npm run shopify help` for more info.
   - `s:e:create`: Create a Shopify extension.
   - `s:e:deploy`: Deploy extension to Shopify.
@@ -46,7 +46,13 @@ This is an in-depth guide on using this repo. This goes over getting the base re
 
 - [ ] Setup Partner Dashboard
 
-  - Run `npm run ngrok` to generate your subdomain. Copy the `https://<your-url>` domain and add it in `SHOPIFY_APP_URL` in your `.env` file.
+  - Run `npm run ssl:generate` to generate your SSL and proxy config.
+
+        If you want to use a custom domain use it like so
+            - `npm run ssl:generate <your-url>.test`
+            - Copy the `https://<your-url>.test` domain and add it in `SHOPIFY_APP_URL` in your `.env` file.
+            - Add this line `127.0.0.1 <your-url>.test` to the hosts file.
+  
   - Run `npm run update:url` OR you can do it manually by heading over to Shopify Partner Dashboard > Apps > _Your App Name_ > App Setup
   - In the URLs section
     - App URL: `https://<your-url>`
@@ -71,5 +77,4 @@ This is an in-depth guide on using this repo. This goes over getting the base re
 
 - [ ] Running App
   - If it's your first time connecting to said database, run `npx prisma db push` to get your database working.
-  - Run `npm run dev`, your database and ngrok.
-  - Install the app by heading over to `https://ngrokurl.io/api/auth?shop=mystorename.myshopify.com`.
+  - Run `npm run dev`, your database and `npm run tunnel`.

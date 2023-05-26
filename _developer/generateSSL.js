@@ -3,16 +3,16 @@ import { exec } from 'child_process';
 import fs from 'fs';
 
 (async () => {
-    if (process.argv.length <= 2) {
-        console.log(chalk.red("Please provide a domain name as a parameter."));
-        console.log(chalk.yellow("Example usage: npm run ssl:generate shopify-app.test"));
-        process.exit(1);
-    }
-    const domainName = process.argv[2];
-    const domainRegex = /^[a-zA-Z0-9.-]+\.(test)$/;
-    if (!domainRegex.test(domainName)) {
-        console.log(chalk.red("Invalid domain name provided. Please provide a valid .test domain."));
-        process.exit(1);
+    let domainName = 'localhost';
+    let isTestDomain = false;
+    if (process.argv[2]) {
+        domainName = process.argv[2];
+        const domainRegex = /^[a-zA-Z0-9.-]+\.(test)$/;
+        isTestDomain = domainRegex.test(domainName);
+        if (!isTestDomain) {
+            console.log(chalk.red("Invalid domain name provided. Please provide a valid .test domain."));
+            process.exit(1);
+        }
     }
     // generate certificate
     const certFilePath = `./ssl/${domainName}.pem`;
@@ -24,10 +24,8 @@ import fs from 'fs';
             process.exit(1);
         }
         if (stderr) {
-            console.log(chalk.red(`mkcert command error: ${stderr}`));
-            process.exit(1);
+            console.log(stderr);
         }
-        console.log(stdout);
     });
     // generate local-ssl-proxy config
     const proxyConfig = {
@@ -41,6 +39,8 @@ import fs from 'fs';
     };
     fs.writeFileSync('./proxy-config.json', JSON.stringify(proxyConfig, null, 2));
     console.log(chalk.green('SSL certificate and key generated successfully.'));
-    console.log(chalk.green('Please add the following entry to your hosts file:'));
-    console.log(chalk.yellow(`127.0.0.1 ${domainName}`));
+    if (isTestDomain) {
+        console.log(chalk.green('Please add the following entry to your hosts file:'));
+        console.log(chalk.yellow(`127.0.0.1 ${domainName}`));
+    }
 })();
