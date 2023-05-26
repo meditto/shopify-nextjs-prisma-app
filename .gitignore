@@ -39,5 +39,5 @@ yarn-error.log*
 .vercel
 
 #vscode
-.vscode
+.vscode/settings.json
 proxy-config.json
